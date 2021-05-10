@@ -1,0 +1,11 @@
+mshockwave:
+  name: "Min-Yih Hsu"
+  location: "California, USA"
+  bio: "Full time PhD student / Part time coffee junkies"
+  links:
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/mshockwave"
+    - label: "LinkedIn"
+      icon: "fab fa-fw fa-linkedin"
+      url: "https://www.linkedin.com/in/bekketmcclane/"

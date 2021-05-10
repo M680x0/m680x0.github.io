@@ -40,19 +40,6 @@ plugins:
 # Pagination
 paginate: 3
 
-# Site authors
-author:
-  name             : "Min-Yih 'Min' Hsu"
-  bio              : "Full time PhD student / Part time coffee junkies"
-  location         : "California, USA"
-  links:
-    - label: "GitHub"
-      icon: "fab fa-fw fa-github"
-      url: "https://github.com/mshockwave"
-    - label: "LinkedIn"
-      icon: "fab fa-fw fa-linkedin"
-      url: "https://www.linkedin.com/in/bekketmcclane/"
-
 # Exclude from processing.
 # The following items will not be processed, by default.
 # Any item listed under the `exclude:` key here will be automatically added to
