@@ -82,4 +82,6 @@ defaults:
       path: "_pages/doc"
     values:
       permalink: /doc/:basename:output_ext
+      sidebar:
+        nav: "docs"
       layout: single

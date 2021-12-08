@@ -6,3 +6,14 @@ main:
   - title: "About"
     url: /about/
 
+docs:
+  - title: "Getting Started"
+    children:
+      - title: "Cross-Compiling M68k Binaries"
+        url: /doc/cross-compile-how-to
+  - title: M68k Resources
+    children:
+      - title: "Official Documents / References"
+        url: /doc/official-docs
+      - title: "ABI"
+        url: /doc/abi
