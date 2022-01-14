@@ -36,6 +36,7 @@ plugins:
   - jekyll-include-cache
   - jekyll-paginate
   #- jekyll-feed
+  - jekyll-redirect-from
 
 # Pagination
 paginate: 3

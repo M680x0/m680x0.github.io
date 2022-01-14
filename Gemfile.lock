@@ -279,6 +279,7 @@ DEPENDENCIES
   jekyll-feed
   jekyll-include-cache
   jekyll-paginate
+  jekyll-redirect-from
   minimal-mistakes-jekyll
   tzinfo (~> 1.2)
   tzinfo-data

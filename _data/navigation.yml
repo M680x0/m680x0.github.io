@@ -9,6 +9,8 @@ main:
 docs:
   - title: "Getting Started"
     children:
+      - title: "How to Build M68k LLVM"
+        url: /doc/build-from-source
       - title: "Cross-Compiling M68k Binaries"
         url: /doc/cross-compile-how-to
   - title: M68k Resources
