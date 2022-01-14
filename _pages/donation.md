@@ -3,7 +3,7 @@ title: Support Us
 permalink: /donation/
 layout: single
 ---
-In addition to contributing code, you can also support us finantially through the following ways:
+In addition to contributing code, you can also support us financially through the following ways:
 
 #### Open Collective
 <script src="https://opencollective.com/m68k-llvm-dev/banner.js"></script>
