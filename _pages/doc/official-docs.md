@@ -1,6 +1,5 @@
 ---
 title: "List of M68k Official Documents"
-layout: single
 ---
 
 ## M68000 Family Programmer's Reference Manual

@@ -1,6 +1,5 @@
 ---
 title: "How to Cross-Compile M68k Binaries"
-layout: single
 ---
 In this page we're demonstrating how to cross compile source code for M68k using the LLVM toolchain.
 > Please refer to [How to Build M68k LLVM](/doc/build-from-source) if you haven't build a m68k LLVM toolchain.

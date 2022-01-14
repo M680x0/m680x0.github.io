@@ -1,6 +1,5 @@
 ---
 title: "How to Build M68k LLVM"
-layout: single
 ---
 Building M68k LLVM is roughly the same as building a normal LLVM. At the minimum:
 ```bash

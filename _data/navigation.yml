@@ -3,6 +3,8 @@ main:
     url: /doc/
   - title: "Blog"
     url: /blog/
+  - title: "Support Us"
+    url: /donation/
   - title: "About"
     url: /about/
 

@@ -86,3 +86,4 @@ defaults:
       sidebar:
         nav: "docs"
       layout: single
+      classes: wide
