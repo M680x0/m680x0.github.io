@@ -5,7 +5,7 @@ toc: true
 ## Variants of ABIs
 In this document, we're covering two variants of M68k ABIs:
   1. **GNU / GCC ABI**: The default ABI used by GCC. It is backward-compatible with many ABIs used by legacy compilers, such as Sun [PCC](https://en.wikipedia.org/wiki/Portable_C_Compiler). Yet it lacks formal documentations. This is currently the only ABI implemented by M68k LLVM.
-  2. **SystemV ABI**: The default ABI used by UNIX systems. There is a nice [book](https://github.com/M680x0/Literature/raw/master/sysv-m68k-abi.pdf) documenting related details. Most of the contents in this page are also adapted from it.
+  2. **SystemV ABI**: The default ABI used by UNIX systems. There is a nice [book](/ref/sysv-abi-download) documenting related details. Most of the contents in this page are also adapted from it.
 
 ## Data Representations
 

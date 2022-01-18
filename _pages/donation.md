@@ -1,6 +1,6 @@
 ---
 title: Support Us
-permalink: /donation/
+permalink: /donation
 layout: single
 ---
 In addition to contributing code, you can also support us financially through the following ways:

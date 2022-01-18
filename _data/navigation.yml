@@ -4,9 +4,9 @@ main:
   - title: "Blog"
     url: /blog/
   - title: "Support Us"
-    url: /donation/
+    url: /donation
   - title: "About"
-    url: /about/
+    url: /about
 
 docs:
   - title: "Getting Started"
