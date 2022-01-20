@@ -74,6 +74,7 @@ defaults:
       type: posts
     values:
       layout: single
+      classes: wide
       permalink: /blog/:year/:month/:title:output_ext
       author_profile: true
       show_date: true
