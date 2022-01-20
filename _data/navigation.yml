@@ -19,5 +19,5 @@ docs:
     children:
       - title: "Official Documents / References"
         url: /doc/official-docs
-      - title: "Applicatoin Binary Interface (ABI)"
+      - title: "Application Binary Interface (ABI)"
         url: /doc/abi
