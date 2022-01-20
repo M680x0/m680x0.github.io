@@ -154,7 +154,7 @@ In addition to special registers like `%fp` and `%sp`, other register usages als
         </tr>
     </tbody>
 </table>
-For floating point unit, which is available after 68040 / 6881, here is a list of floating point register usages:
+For floating point unit, which is available after 68040 / 68881, here is a list of floating point register usages:
 <table>
     <thead>
         <th>Register Names</th>
