@@ -24,4 +24,4 @@ cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug \
                -DLLVM_USE_SPLIT_DWARF=ON \
                ../llvm
 ```
-Of course, you need to install LLD for this configuraiton(or you can replace `lld` in the above command with `gold`), which is available in most of the Debian / Ubuntu distributions.
+Of course, you need to install LLD for this configuration(or you can replace `lld` in the above command with `gold`), which is available in most of the Debian / Ubuntu distributions.
