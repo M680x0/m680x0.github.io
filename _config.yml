@@ -66,6 +66,7 @@ exclude:
 include:
   - _pages
   - _data
+  - assets
 
 defaults:
   # _posts/
