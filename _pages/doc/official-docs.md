@@ -9,5 +9,5 @@ The go-to documents for learning M68k instruction set.
 
 Note that the PDF, as well as the HTML version, don't have bookmarks to individual instructions' pages in Section 4 (Integer Instructions), 5 (Floating Point Instructions), and 6 (Supervisor Instructions), making navigations between different instructions more difficult. Thus, I created separate online pages for those sections with detailed outline on the side. 
   - [Integer Instructions](/ref/integer-instructions.html)
-  - Floating Point Instructions (_WIP_)
+  - [Floating Point Instructions](/ref/floating-point-instructions.html)
   - Supervisor Instructions (_WIP_)
