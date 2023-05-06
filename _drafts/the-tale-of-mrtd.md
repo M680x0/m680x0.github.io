@@ -5,11 +5,15 @@ classes: wide
 author: mshockwave
 ---
 
-Recently I've been working on an [issue](https://github.com/llvm/llvm-project/issues/60554) about supporting the [`RTD`](/ref/integer-instructions.html#pf10e) instruction in m68k LLVM backend (well, it turned out to be not directly related to the instruction itself but we will talk about that later).
-The gist of that issue goes like this: the backend bailed out when it tried to lower a certain kind of return statement to `RTD`, if we're targeting 68020 or later.
+Recently I've been working on an [issue](https://github.com/llvm/llvm-project/issues/60554) about supporting the [`RTD`](/ref/integer-instructions.html#pf10e) instruction in m68k LLVM backend (well, it turned out to be not directly related to the instruction itself but we will talk about that shortly).
+The gist of that issue goes like this: the backend bailed out when it tried to lower a certain kind of return statement to `RTD`, if we're targeting 68020 or later[^1].
+
+[^1]: The 68020 predicate is actually wrong, `RTD` is already available in 68010.
 
 `RTD` is a variant of return instruction that subtracts the number of bytes, indicated by its immediate-value operand from the stack pointer (which effectively pops the stack) before returning.
 It can be used to implement a special kind of calling convention in which the callee has to clean out the space allocated for arguments passed from the stack.
+Though you don't _have_ to use `RTD` to implement the said calling convention, as long as you pop arguments before returning.
+
 In m68k GCC, this calling convention is not enabled by default unless the `-mrtd` flag is present.
 Since this project is aiming to be compatible with its GCC counterpart (and the fact that this calling convention was not commonly used even in the good ol' days), we want to implement the same behavior.
 
@@ -79,15 +83,17 @@ We can only make some educated guesses now.
 There are three pieces of clues I found useful here:
   1. `-mrtd` was also used for one of the obselete (and ancient) architectures called Gmicro. A comment about `-mrtd` in Gmicro backend [said](https://gcc.gnu.org/git?p=gcc.git;a=blob;f=gcc/config/gmicro/gmicro.h;h=3d50048a13a0dded561039162d15e0acd4ec6e91;hb=44f0c3edadbe3baa3ed045a4a9917719dd65029b#l461): _"...On the m68k this is an RTD option, so I use the same name for the Gmicro. The option name may be changed in the future."_
   2. The initial version of `config/i386/i386.h` and `config/m68k/m68k.h` shared a nearly identical line of the comments related to `-mrtd` handlings ([i386 line](https://gcc.gnu.org/git/?p=gcc.git;a=blob;f=gcc/config/i386/i386.h;h=c0cd287b3d2f0c5d66baf1b8ed168239639771e9;hb=c98f874233428d7e6ba83def7842fd703ac0ddf1#l517) v.s. [m68k line](https://gcc.gnu.org/git/?p=gcc.git;a=blob;f=gcc/config/m68k/m68k.h;h=2fea1a12357cfc0ca2cce6fc3351cebc3c9429a8;hb=3d339ad2b6fa7849631f4cf485efb71638687981#l739)). The only difference between them is the supported processor name (i.e. "80386" v.s. "68010"). 
-  3. From the [announcement](https://groups.google.com/g/mod.compilers/c/ynAVuwR7dPw/m/-IirjtgwPxsJ) of the first GCC beta release made by RMS (circa March 1987), it's high likely that m68k and VAX were the only two supported targets.
+  3. From the [announcement](https://groups.google.com/g/mod.compilers/c/ynAVuwR7dPw/m/-IirjtgwPxsJ) of the first GCC beta release made by RMS (circa March 1987), it's high likely that m68k and [VAX](https://en.wikipedia.org/wiki/VAX) were the only two supported targets.
 
 Item (1) suggests that reusing a flag name, despite having little to do with the respective instruction name (in Gmicro the corresponding instruction is called `EXITN` not `RTD`) was a thing, and might even be a common practice;
 item (2) is likely to be a trail of boilerplate copy-n-paste on not just the comment but also the code, as well as the flag.
 Finally, item (3) further affirms that if both (1) and (2) hold, it's likely that `-mrtd` was reused or copied from m68k to i386 GCC rather than the other way around.
 
 # Conclusion
-Though there isn't any direct evidence showing that `-mrtd` was borrowed from m68k GCC to i386 GCC (and eventually rippled to Clang) it's very likely the case, supported by the..._artifacts_ I presented.
+Though there isn't any direct evidence[^about_email] showing that `-mrtd` was borrowed from m68k GCC to i386 GCC (and eventually rippled to Clang), from the _artifacts_ I presented it's very likely the case.
 
 But in any case, if patch [D149864](https://reviews.llvm.org/D149864) and [D149867](https://reviews.llvm.org/D149867) are accepted in the future, m68k Clang/LLVM will finally recognize `-mrtd` --- nearly **40 years** after its debute in GCC.
 
 A small victory for the m68k LLVM community nonetheless!
+
+[^about_email]: Alternatively I can directly ask some of the early GCC contributors. Unfortunately I'm not sure whether their emails are still reachable or even worse, whether they are still with us.
