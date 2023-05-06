@@ -1,7 +1,6 @@
 ---
 title:  "The tale of `-mrtd` in GCC and Clang"
-layout: single
-classes: wide
+date: 2023-05-06 16:00 -0700
 author: mshockwave
 ---
 
