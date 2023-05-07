@@ -9,9 +9,9 @@ The gist of that issue goes like this: the backend bailed out when it tried to l
 
 [^1]: The 68020 predicate is actually wrong, `RTD` is already available in 68010.
 
-`RTD` is a variant of return instruction that subtracts the number of bytes, indicated by its immediate-value operand from the stack pointer (which effectively pops the stack) before returning.
+`RTD` is a variant of return instruction that subtracts some bytes, whose quantity is indicated by the instruction's operand, from stack pointer (which effectively pops the stack) before returning.
 It can be used to implement a special kind of calling convention in which the callee has to clean out the space allocated for arguments passed from the stack.
-Though you don't _have_ to use `RTD` to implement the said calling convention, as long as you pop arguments before returning.
+Though you don't _have_ to use `RTD` to implement the said calling convention, as long as you pop the arguments upon returning.
 
 In m68k GCC, this calling convention is not enabled by default unless the `-mrtd` flag is present.
 Since this project is aiming to be compatible with its GCC counterpart (and the fact that this calling convention was not commonly used even in the good ol' days), we want to implement the same behavior.
@@ -56,8 +56,8 @@ Let's start from the Clang/LLVM side. The `-mrtd` flag was added to Clang by [65
 Unfortunately, there wasn't any commit message or code comment attached to shed some lights on the choice of flag name.
 But luckily Clang, as a compiler driver, is supposed to be [compatible with GCC](https://clang.llvm.org/docs/DriverInternals.html#gcc-compatibility). So one can safely assume that this flag is originated from GCC.
 
-Digging into GCC's source code, at hindsight [6ac4959](https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=6ac49599123d5d649107b8d7fd0674a8fb1afdbe) added `-mrtd` to i386 GCC in 1992, residing in file `config/i386/i386.opt`.
-But if we look closer, that patch was merely transferring flag declarations to the newer generator-based approach using *.opt files.
+Digging into GCC's source code, at hindsight [6ac4959](https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=6ac49599123d5d649107b8d7fd0674a8fb1afdbe) added `-mrtd` to i386 GCC in 2005, residing in file `config/i386/i386.opt`.
+But if we look closer, that patch was merely transferring flag declarations to the newer generator-based approach with *.opt files.
 The [original definition](https://gcc.gnu.org/git?p=gcc.git;a=blob;f=gcc/config/i386/i386.h;h=5854944c8ec2b7b054a6c9f3aacb35778c46e67c;hb=0e5d569cd56e49dd5be9a67d553f0c007ff5436c#l357) of `-mrtd` flag in `config/i386/i386.h` can actually be traced all the way back to the _initial_ version of i386 backend!
 Specifically, [c98f874](https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=c98f874233428d7e6ba83def7842fd703ac0ddf1) authored on **Feb 9th 1992**.
 
@@ -69,13 +69,15 @@ Here was my assumption:
 So I looked into the first commit that introduced `-mrtd` to m68k GCC, which was [3d339ad](https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=3d339ad2b6fa7849631f4cf485efb71638687981).
 But the timestamp showed that it was authored on **Feb 18th 1992**, 9 days _after_ the first file in the initial version of i386 GCC!
 
+Is it possible that m68k GCC's `-mrtd` was actually copied _from_ i386 GCC?
+
 ## "LookMaNoVCS_FINALv9.4FINALFINALrev87.psd"
 
 It turns out GCC not only has used several different VCS (Version Control System) [in the past](https://mpoquet.github.io/blog/2020-08-vcs-adoption-in-floss/index.html), it was not even managed with a VCS at the very beginning.
 According to [GCC's History](https://gcc.gnu.org/wiki/History), the first (beta) [release](https://groups.google.com/g/mod.compilers/c/ynAVuwR7dPw/m/-IirjtgwPxsJ) was put...on a FTP server located in MIT.
 
-So the Feb 9th 1992 date we just mentioned was merely the time i386 backend was checked into GCC's VCS. Same for the Feb 18th 1992 date of its m68k counterpart.
-It's highly likely that the code for i386 and m68k backend was already there before any VCS adoption.
+So the Feb 9th 1992 date we just mentioned was merely the time i386 backend was checked into GCC's VCS from a plain source tree. Same for the Feb 18th 1992 date of its m68k counterpart.
+In other words, it's highly likely that the code for i386 and m68k backend was already there before any VCS adoption.
 The best way to answer this is to grab GCC's pre-VCS era source code. Unfortunately, while the [FTP server](http://prep.ai.mit.edu/gnu/) that originally hosted GCC is still there, I no longer can find that particular copy of source code.
 We can only make some educated guesses now.
 
@@ -91,7 +93,7 @@ Finally, item (3) further affirms that if both (1) and (2) hold, it's likely tha
 # Conclusion
 Though there isn't any direct evidence[^about_email] showing that `-mrtd` was borrowed from m68k GCC to i386 GCC (and eventually rippled to Clang), from the _artifacts_ I presented it's very likely the case.
 
-But in any case, if patch [D149864](https://reviews.llvm.org/D149864) and [D149867](https://reviews.llvm.org/D149867) are accepted in the future, m68k Clang/LLVM will finally recognize `-mrtd` --- nearly **40 years** after its debute in GCC.
+But in any case, should patch [D149864](https://reviews.llvm.org/D149864) and [D149867](https://reviews.llvm.org/D149867) be accepted, m68k Clang/LLVM will finally have the ability to recognize `-mrtd` --- nearly **40 years** after its debute in GCC.
 
 A small victory for the m68k LLVM community nonetheless!
 
