@@ -35,7 +35,7 @@ remote_theme: "mmistakes/minimal-mistakes@4.21.0"
 plugins:
   - jekyll-include-cache
   - jekyll-paginate
-  #- jekyll-feed
+  - jekyll-feed
   - jekyll-redirect-from
 
 # Pagination
