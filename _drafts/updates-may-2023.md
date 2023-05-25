@@ -12,24 +12,23 @@ So I thought it's a good idea to have a slightly more formal write-up on the pro
 ## Atomic Instructions
 Atomic instructions are commonly seen in modern architectures to perform indivisible operations.
 However, historically speaking, atomic instructions have never really been a thing for m68k, since processors in this family are predominantly single-core[^2], which is the model we primarily focus on in this project.
+That said, as a backend we still need to lower atomic instructions passing from earlier stages in the compilation pipeline. Otherwise, LLVM will simply bail out with a crash.
 
 [^2]: related: 68060 actually has superscalar support.
 
-That said, as a backend we still need to lower atomic instructions passing from earlier stages in the compilation pipeline. Otherwise, LLVM will simply bail out.
-For atomic load and store, the stories are a lot simpler: due to the aforementioned single-core nature, lowering to normal `MOV` instructions should be sufficient, which is what [D136525](https://reviews.llvm.org/D136525) did.
-
+For atomic load and store, the stories are a lot simpler: due to the aforementioned single-core nature, lowering them to normal `MOV` instructions should be sufficient, which was something [D136525](https://reviews.llvm.org/D136525) did.
 In the same patch, the author, [Sheng](https://github.com/0x59616e), also dealt with something more tricky: atomic compare-exchange (cmpxchg) and its friends, like atomic fetch-and-add (or add-and-fetch).
-Despite being single-core, it's still possible to run a multi-tasking system. So we need to make sure an atomic cmpxchg is immune to system routines like interrupts and/or context-switching.
-To this end, 68020 and later processors are equipped with the [`CAS`](/ref/integer-instructions.html#pfaa) instruction, which is the implementation of cmpxchg as well as the substrate for fetch-and-X instructions.
-For older processors, we expanded them into lock-free library calls (i.e. `__sync_val_compare_and_swap` and `__sync_fetch_*`).
-In addition, [85b37d0](https://reviews.llvm.org/rGa85b37d0ca819776c6034c2dbda2b21e54e3393a) amended the atomic swap operation to this list.
-Last but not the least, this patch also lowered atomic read-modify-write (RMW) and any atomic operations larger than 32 bits into library calls of libatomic, which are not lock-free[^3].
+Despite being single-core, the processor can still run multi-tasking systems. So we need to make sure an atomic cmpxchg is immune to system routines like interrupts and/or context-switching.
+To this end, 68020 and later processors are equipped with the [`CAS`](/ref/integer-instructions.html#pfaa) instruction, which can be used as the substrate for fetch-and-X instructions, in addition to implementing cmpxchg.
+For older processors, we expanded these instructions into lock-free library calls (i.e. `__sync_val_compare_and_swap` and `__sync_fetch_*`).
+In addition, this patch also lowered atomic read-modify-write (RMW) and any atomic operations larger than 32 bits into library calls of libatomic, which are not lock-free[^3].
+Last but not the least, [85b37d0](https://reviews.llvm.org/rGa85b37d0ca819776c6034c2dbda2b21e54e3393a) added the lowering for atomic swap operations.
 
 [^3]: LLVM has [an amazing page](https://llvm.org/docs/Atomics.html#atomics-and-codegen) documenting codegen for atomic operations, including the explanations to lock-free v.s. libatomic library calls. Highly recommended.
 
 [D146996](https://reviews.llvm.org/D146996) was dealing with a similar puzzle: atomic fence.
-As mentioned before, we don't need to worry about the memory operation order in a non-superscalar single-core processor, like most members in 68k.
-Thus, this patch only needs to prevent compiler optimizations from reodering instructions across atomic fence. A more sophisticate solution might add dependencies between instructions that are placed before and after the fence...but, well, I was lazy so I literally mimic what m68k GCC did: lower an atomic fence into an _inline assembly_ memory barrier a.k.a `asm __volatile__ ("":::"memory")` (more precisely, an inline assembly instruction in LLVM's MachineIR).
+As mentioned before, we don't need to worry about the memory operation order in a in-order single-core processor, like most members in 68k.
+Thus, this patch only needs to prevent compiler optimizations from reodering instructions across atomic fence. I believe there is definitely a more sophisticate solution, like adding dependencies (e.g. SelectionDAG chains) between instructions placed before and after the fence...but, well, I was lazy so I literally copied what m68k GCC did: lower atomic fence into an _inline assembly_ memory barrier a.k.a `asm __volatile__ ("":::"memory")` (more precisely, an inline assembly instruction in LLVM's MachineIR).
 
 That said, if we want to deal with potentially-out-of-order 68060 processors in the future, we might need to lower any fence into a `NOP`, which has the syntax of [synchronizing the pipeline](/ref/M68000PM_AD_Rev_1_Programmers_Reference_Manual_1992.html#pf5c).
 
@@ -39,7 +38,7 @@ Just like the original [x87](https://en.wikipedia.org/wiki/X87), m68k employed _
 Luckily, compared to x87, m68k's FP instructions are much more straightforward. Notably, they use nearly identical addressing modes as their integer counterparts (except using floating point data registers, of course).
 The list of FP instructions can be found [here](https://m680x0.github.io/ref/floating-point-instructions.html).
 
-[D147479](https://reviews.llvm.org/D147479) and [D147481](https://reviews.llvm.org/D147481) laid down 68k's FP foundation, like new register classes, in LLVM and Clang, respectively;
+[D147479](https://reviews.llvm.org/D147479) and [D147481](https://reviews.llvm.org/D147481) laid down 68k's FP foundation like new register classes and compiler driver flags, in their respective LLVM and Clang components;
 [D147480](https://reviews.llvm.org/D147480) and [D148255](https://reviews.llvm.org/D148255) added definitions and MC supports (AsmParser/Printer and disassembler) for an extremely limited number of data and arithmetic instructions.
 Currently no codegen support has been added to these instructions, which is definitely one of our future plans.
 Aside from codegen, an easier task might be adding preliminary inline assembly supports for floating point constraints and escaped characters, as described in [this issue](https://github.com/llvm/llvm-project/issues/61806).
@@ -78,17 +77,18 @@ in which the `%agg.result` is the implicit-inserted argument used to return our 
 [^4]: SysV ABI actually didn't specify who (caller v.s. callee) should allocate the memory, but LLVM's codegen infrastructure designates it to caller by default. Plus, it makes more sense.
 
 ## Inline Assembly: Memory Constraints
-Before the patches we are about to mention, we already have supports for most of the inline assembly constraints, either target [independent](https://gcc.gnu.org/onlinedocs/gcc/Simple-Constraints.html) or [dependent](https://gcc.gnu.org/onlinedocs/gcc/Machine-Constraints.html) ones, in place -- except memory constraints (e.g. `m`).
+We added the supports for most of the inline assembly constraints, either target [independent](https://gcc.gnu.org/onlinedocs/gcc/Simple-Constraints.html) or [dependent](https://gcc.gnu.org/onlinedocs/gcc/Machine-Constraints.html) ones about 2 years ago -- but memory constraints (e.g. `m`) had always been absent.
 
-[D143529](https://reviews.llvm.org/D143529) added supports for the `m`, `Q`, and `U` constraints.
+Wait no more! [D143529](https://reviews.llvm.org/D143529) just added the supports for `m`, `Q`, and `U` constraints.
 The `m` constraint accounts for generic memory operands; `Q` is subject to any addressing modes that involves an address register as the base; `U` is similar to `Q`, but limited to those using constant offsets.
 
-There were two challenges in this task: first, there are more than one possible addressing modes to which operands with any of these addressing modes can be lowered. So we literally need to call out to the instruction selector and try to select the operand in question with different addressing modes, one after another with an order I arbitrarily picked🤪.
+There were two challenges in this task: first, there are more than one possible addressing modes to which operands with any of those memory constraints can be lowered. We need to use instruction selector to select an addressing mode for the memory operand in question.
+Unfortunately, in our backend, the selection logic for finding the optimal addressing modes is not easily accessible from outside the instruction selector, so we ended up trying every possible addressing modes, one after another, following an order I arbitrarily picked🤪.
 
-Second, `AsmPrinter` -- the last Pass in the codegen pipeline -- will print the selected memory operand to the corresponding placeholder in the inline assembly string _regardless_ of whether your target has an integrated assembler[^5], which is usually the place where native instructions got printed out.
-That means, we need to have the same printing logics for memory operands in both AsmPrinter and m68's own MC layer. To avoid duplicate code, [D143528](https://reviews.llvm.org/D143528) factored out the printing logics so that both components (AsmPrinter and m68k's MC) can share.
+Second, `AsmPrinter` -- the last Pass in the codegen pipeline -- is required to print the selected memory operand into the inline assembly string _without_ the help of MC[^5].
+Since m68k's own MC component also has the exact same printing logics for memory operands, we ended up having duplicate code in two places (AsmPrinter and m68k's MC). To avoid that, [D143528](https://reviews.llvm.org/D143528) factored out the printing logics shared by so that both components can share.
 
-[^5]: The reason being that, despite being rare, integrated assembler is not required for a target. Thus, we need to make sure those inline assembly memory operands are still properly materialized in the absence of integrated assembler.
+[^5]: The reason being that, despite being rare, integrated assembler is not required for a target. Thus, we need to make sure those inline assembly memory operands are still properly printed in the absence of integrated assembler.
 
 ## Miscs
 
