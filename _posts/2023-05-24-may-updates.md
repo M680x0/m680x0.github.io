@@ -1,7 +1,7 @@
 ---
 title: "What's New in M68k LLVM (May 2023)"
-layout: single
-classes: wide
+date: 2023-05-24 22:00 -0700
+author: mshockwave
 ---
 
 It has been a minute[^1] since the last update on our [Open Collective](https://opencollective.com/m68k-llvm-dev) and [Patreon](https://www.patreon.com/m68k_llvm) campaigns.
