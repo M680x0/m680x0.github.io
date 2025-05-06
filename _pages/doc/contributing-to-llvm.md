@@ -2,25 +2,11 @@
 title: "Contributing to LLVM"
 ---
 
-## Context
+## Prerequisites
 
-Intended audience:
-
-- Those who want to contribute improvements or fixes to the LLVM M68k backend
-- Experienced computer users
-- Experienced C++ programmers
-- Those familiar with git, GitHub and the command line
+First, read the [official documentation](https://llvm.org/docs/Contributing.html).
 
 ## Setup
-
-Perequisites:
-
-- A Unix-like OS
-- A git client
-- A native C++ compiler
-- CMake
-- Ninja build system
-- A C++ code editor
 
 ### Forking and cloning the LLVM repository
 
@@ -28,100 +14,60 @@ Head over to [the LLVM repository page](https://github.com/llvm/llvm-project) an
 
 Once GitHub has finished forking the repo, use git to clone your fork.
 
-```sh
-git clone git@github.com:<your-github-username>/llvm-project.git
-cd llvm-project
-mkdir build
+```bash
+$ git clone git@github.com:<your-github-username>/llvm-project.git
+$ cd llvm-project
+$ mkdir build
+$ cd build
 ```
 
-### Generating build files using CMake
+## Building
 
-Invoke CMake to generate the build files:
-
-```sh
-cmake \
-    -B build \
-    -D BUILD_SHARED_LIBS="On" \
-    -D CMAKE_BUILD_TYPE="Release" \
-    -D LLVM_ENABLE_ASSERTIONS="On" \
-    -D LLVM_ENABLE_PROJECTS="" \
-    -D LLVM_EXPERIMENTAL_TARGETS_TO_BUILD="M68k" \
-    -D LLVM_TARGETS_TO_BUILD="" \
-    -D LLVM_USE_SPLIT_DWARF="On" \
-    -G Ninja \
-    -S llvm
-```
-
-#### Rationale for the CMake options
-
-CMake usage can be displayed with `cmake --help`.
-
-The LLVM CMake options which affect the build are [documented here](https://llvm.org/docs/CMake.html).
-
-`-B build`
-
-We'll use a directory named `build` to store build files. This directory is already ignored by the `.gitignore` file, so it's assumed to be the standard build directory.
-
-`-D BUILD_SHARED_LIBS="On"`
-
-We'll build shared libraries rather than static libraries, to save some disk space.
-
-`-D CMAKE_BUILD_TYPE="Release"`
-
-We'll build the `Release` configuration, as otherwise running tests can be quite slow.
-
-**TODO:** Should we build the `RelWithDebInfo` configuration instead?
-
-`-D LLVM_ENABLE_ASSERTIONS="On"`
-
-We'll enable assertions, in order to catch more errors during runtime.
-
-`-D LLVM_ENABLE_PROJECTS=""`
-
-We'll remove unnecessary projects from the build.
-
-`-D LLVM_EXPERIMENTAL_TARGETS_TO_BUILD="M68k"`
-
-The M68k target is "experimental", meaning it's not built by default. We need to explicitly enable it.
-
-`-D LLVM_TARGETS_TO_BUILD=""`
-
-We'll remove all other targets from the build.
-
-`-D LLVM_USE_SPLIT_DWARF="On"`
-
-Remove memory pressure during link-time.
-
-`-G Ninja`
-
-Use the Ninja build system, rather than the default (Make.) Ninja is faster than Make.
-
-`-S llvm`
-
-Specify `llvm` as the source directory.
-
-## Building LLVM for testing
-
-Invoke CMake to build:
-
-```sh
-cmake --build build --target test-depends
-```
-
-The `test-depends` target contains all the dependencies required to run tests.
+See [How to Build M68k LLVM](build-from-source).
 
 ## Running the M68k tests
 
-It takes significantly longer to run all the tests than it does to just run the M68k-related tests. In order to iterate more quickly, you can run only the M68k tests, rather than all the tests.
+### Running tests using CMake
+
+#### Running all the tests
+
+Invoke CMake to run all the tests:
+
+```bssh
+cmake --build . --target check-all
+```
+
+#### Running specific sets of tests
+
+It takes significantly longer to run all the tests than it does to only run targeted M68k-related tests. In order to iterate more quickly, you can run only the M68k tests, rather than all the tests.
+
+```bash
+cmake --build . --target check-llvm-codegen-m68k
+```
+
+There are several useful test-related targets:
+
+- `check-llvm-codegen-m68k` runs tests under `test/CodeGen/M68k`.
+- `check-llvm-mc-m68k` runs tests under `test/MC/M68k`.
+- `check-llvm-mc-disassembler-m68k` runs tests under `test/MC/Disassembler/M68k`.
+- `llvm-test-depends` builds all the dependencies required to run LLVM tests, but does not run the tests.
+
+### Running tests using `llvm-lit`
+
+Invoke CMake to build the testing dependencies:
+
+```bash
+cmake --build . --target llvm-test-depends
+```
 
 Invoke `llvm-lit` to run the M68k tests:
 
-```sh
-./build/bin/llvm-lit \
-    llvm/test/CodeGen/M68k \
-    llvm/test/DebugInfo/M68k \
-    llvm/test/MC/Disassembler/M68k \
-    llvm/test/MC/M68k
+```bash
+bin/llvm-lit \
+    ../llvm/test/CodeGen/M68k \
+    ../llvm/test/DebugInfo/M68k \
+    ../llvm/test/MC/Disassembler/M68k \
+    ../llvm/test/MC/M68k
 ```
 
 `llvm-lit` is the [LLVM Integrated Tester](https://llvm.org/docs/CommandGuide/lit.html) utility.
@@ -143,26 +89,10 @@ Total Discovered Tests: 168
   Passed: 168 (100.00%)
 ```
 
-## Running all the tests
-
-Invoke CMake to run all the tests:
-
-```sh
-cmake --build build --target check-all
-```
-
 ## Making changes
 
-**TODO**
+**TO DO**
 
-## Opening a Pull Request
+## Getting your changes into LLVM
 
-**TODO**
-
-## Getting the Pull Request reviewed
-
-**TODO**
-
-## Getting the Pull Request merged
-
-**TODO**
+See the [LLVM code review process documentation](https://llvm.org/docs/CodeReview.html).
