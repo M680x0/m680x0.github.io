@@ -47,10 +47,14 @@ cmake --build . --target check-llvm-codegen-m68k
 
 There are several useful test-related targets:
 
-- `check-llvm-codegen-m68k` runs tests under `test/CodeGen/M68k`.
-- `check-llvm-mc-m68k` runs tests under `test/MC/M68k`.
-- `check-llvm-mc-disassembler-m68k` runs tests under `test/MC/Disassembler/M68k`.
-- `llvm-test-depends` builds all the dependencies required to run LLVM tests, but does not run the tests.
+| Target                            | Directory containing tests  |
+| --------------------------------- | --------------------------- |
+| `check-llvm-codegen-m68k`         | `test/CodeGen/M68k`         |
+| `check-llvm-debuginfo-m68k`       | `test/DebugInfo/M68k`       |
+| `check-llvm-mc-disassembler-m68k` | `test/MC/Disassembler/M68k` |
+| `check-llvm-mc-m68k`              | `test/MC/M68k`              |
+
+Additionally, the `llvm-test-depends` target builds all the dependencies required to run LLVM tests, but does not run the tests.
 
 ### Running tests using `llvm-lit`
 
