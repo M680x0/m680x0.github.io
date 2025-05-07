@@ -68,15 +68,15 @@ Invoke `llvm-lit` to run the M68k tests:
 
 ```bash
 bin/llvm-lit \
-    ../llvm/test/CodeGen/M68k \
-    ../llvm/test/DebugInfo/M68k \
-    ../llvm/test/MC/Disassembler/M68k \
-    ../llvm/test/MC/M68k
+    test/CodeGen/M68k \
+    test/DebugInfo/M68k \
+    test/MC/Disassembler/M68k \
+    test/MC/M68k
 ```
 
 `llvm-lit` is the [LLVM Integrated Tester](https://llvm.org/docs/CommandGuide/lit.html) utility.
 
-We specify the directories containing M68k-related tests.
+We specify the directories containing M68k-related tests. The directories are relative to the path specified by `config.llvm_src_root` in `build/test/lit.site.cfg.py`.
 
 You should see output something like:
 
