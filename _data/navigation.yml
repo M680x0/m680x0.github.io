@@ -15,6 +15,8 @@ docs:
         url: /doc/build-from-source
       - title: "Cross-Compiling M68k Binaries"
         url: /doc/cross-compile-how-to
+      - title: "Contributing to LLVM"
+        url: /doc/contributing-to-llvm
   - title: M68k Resources
     children:
       - title: "Official Documents / References"
